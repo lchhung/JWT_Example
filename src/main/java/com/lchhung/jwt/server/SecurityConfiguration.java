@@ -35,6 +35,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/profile/**").authenticated()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/management/**").hasAnyRole("ADMIN", "MANAGER")
+
+                // This is to protect rest API (resource)
+                //.antMatchers("/api/public/**").authenticated()
+                .antMatchers("/api/public/**").hasAnyRole("ADMIN","MANAGER")
                 .and()
                 .httpBasic();
     }
