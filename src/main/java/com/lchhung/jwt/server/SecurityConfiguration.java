@@ -20,7 +20,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .inMemoryAuthentication()
                 .withUser("admin").password(passwordEncoder().encode("admin")).roles("ADMIN")
                 .and()
-                .withUser("user1").password(passwordEncoder().encode("user1")).roles("USER");
+                .withUser("user").password(passwordEncoder().encode("user")).roles("USER")
+                .and()
+                .withUser("manager").password(passwordEncoder().encode("manager")).roles("MANAGER");
     }
 
     //2. Authorise request
@@ -28,8 +30,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure (HttpSecurity http) throws Exception {
         http
                 .authorizeRequests() // Authorise request
-                .anyRequest() // all request will be authorise
-                .authenticated()// Allow access to authenticated user only
+                .antMatchers("/index.html").permitAll() // Permit all request to get access to home page
+                //.antMatchers("/profile/index").authenticated() // Alternatively defined route
+                .antMatchers("/profile/**").authenticated()
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/management/**").hasAnyRole("ADMIN", "MANAGER")
                 .and()
                 .httpBasic();
     }
