@@ -19,13 +19,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth
                 .inMemoryAuthentication()
                 .withUser("admin")
-                    .password(passwordEncoder().encode("admin")).roles("ADMIN").authorities("ACCESS_TEST1","ACCESS_TEST2")
+                    .password(passwordEncoder().encode("admin")).roles("ADMIN")
+
+                // When we define .authorities(""ACCESS_TEST1","ACCESS_TEST2","ROLE_ADMIN"),
+                // which means that permission and role can be granted.
+                    .authorities("ACCESS_TEST1","ACCESS_TEST2","ROLE_ADMIN")
+
                 .and()
+
                 .withUser("user")
                     .password(passwordEncoder().encode("user")).roles("USER")
+
                 .and()
+
                 .withUser("manager")
-                    .password(passwordEncoder().encode("manager")).roles("MANAGER").authorities("ACCESS_TEST2");
+                    .password(passwordEncoder().encode("manager"))
+                    .authorities("ACCESS_TEST1","ROLE_MANAGER");
     }
 
     //2. Authorise request
@@ -51,6 +60,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 //This is allow anyone who has authority access to  get access to test2
                 .antMatchers("/api/public/test2").hasAuthority("ACCESS_TEST2")
+
+                .antMatchers("/api/public/users").hasRole("ADMIN")
                 .and()
                 .httpBasic();
     }
