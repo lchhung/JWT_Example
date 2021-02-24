@@ -18,11 +18,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .inMemoryAuthentication()
-                .withUser("admin").password(passwordEncoder().encode("admin")).roles("ADMIN")
+                .withUser("admin")
+                    .password(passwordEncoder().encode("admin")).roles("ADMIN").authorities("ACCESS_TEST1","ACCESS_TEST2")
                 .and()
-                .withUser("user").password(passwordEncoder().encode("user")).roles("USER")
+                .withUser("user")
+                    .password(passwordEncoder().encode("user")).roles("USER")
                 .and()
-                .withUser("manager").password(passwordEncoder().encode("manager")).roles("MANAGER");
+                .withUser("manager")
+                    .password(passwordEncoder().encode("manager")).roles("MANAGER").authorities("ACCESS_TEST2");
     }
 
     //2. Authorise request
@@ -33,12 +36,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/index.html").permitAll() // Permit all request to get access to home page
                 //.antMatchers("/profile/index").authenticated() // Alternatively defined route
                 .antMatchers("/profile/**").authenticated()
+
+                //We put authorize() to permit specific access because many people would have the same role but different
+                //acceses might need to be allow.
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/management/**").hasAnyRole("ADMIN", "MANAGER")
 
                 // This is to protect rest API (resource)
                 //.antMatchers("/api/public/**").authenticated()
-                .antMatchers("/api/public/**").hasAnyRole("ADMIN","MANAGER")
+                //.antMatchers("/api/public/**").hasAnyRole("ADMIN","MANAGER")
+
+                //This is allow ADMIN to get access to this API as define in config above
+                .antMatchers("/api/public/test1").hasAuthority("ACCESS_TEST1")
+
+                //This is allow anyone who has authority access to  get access to test2
+                .antMatchers("/api/public/test2").hasAuthority("ACCESS_TEST2")
                 .and()
                 .httpBasic();
     }
