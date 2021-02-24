@@ -1,4 +1,4 @@
-package com.lchhung.jwt.server;
+package com.lchhung.jwt.server.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

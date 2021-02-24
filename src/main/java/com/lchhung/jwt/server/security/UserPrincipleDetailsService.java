@@ -1,4 +1,4 @@
-package com.lchhung.jwt.server;
+package com.lchhung.jwt.server.security;
 
 import com.lchhung.jwt.server.db.UserRepository;
 import com.lchhung.jwt.server.model.User;
