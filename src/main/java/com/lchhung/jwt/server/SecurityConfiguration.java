@@ -2,6 +2,7 @@ package com.lchhung.jwt.server;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,29 +14,59 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    //1. Need to override user role
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication()
-                .withUser("admin")
-                    .password(passwordEncoder().encode("admin")).roles("ADMIN")
+    //@Autowired
+    private UserPrincipleDetailsService userPrincipleDetailsService;
 
-                // When we define .authorities(""ACCESS_TEST1","ACCESS_TEST2","ROLE_ADMIN"),
-                // which means that permission and role can be granted.
-                    .authorities("ACCESS_TEST1","ACCESS_TEST2","ROLE_ADMIN")
-
-                .and()
-
-                .withUser("user")
-                    .password(passwordEncoder().encode("user")).roles("USER")
-
-                .and()
-
-                .withUser("manager")
-                    .password(passwordEncoder().encode("manager"))
-                    .authorities("ACCESS_TEST1","ROLE_MANAGER");
+    public SecurityConfiguration(UserPrincipleDetailsService userPrincipleDetailsService) {
+        this.userPrincipleDetailsService = userPrincipleDetailsService;
     }
+
+//    //1. This is to config In Memmory User
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth
+//                .inMemoryAuthentication()
+//                .withUser("admin")
+//                    .password(passwordEncoder().encode("admin")).roles("ADMIN")
+//
+//                // When we define .authorities(""ACCESS_TEST1","ACCESS_TEST2","ROLE_ADMIN"),
+//                // which means that permission and role can be granted.
+//                    .authorities("ACCESS_TEST1","ACCESS_TEST2","ROLE_ADMIN")
+//
+//                .and()
+//
+//                .withUser("user")
+//                    .password(passwordEncoder().encode("user")).roles("USER")
+//
+//                .and()
+//
+//                .withUser("manager")
+//                    .password(passwordEncoder().encode("manager"))
+//                    .authorities("ACCESS_TEST1","ROLE_MANAGER");
+//    }
+
+
+    //.0 Create a brean for authentification provider
+
+    @Bean
+    DaoAuthenticationProvider daoAuthenticationProvider (){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(this.userPrincipleDetailsService);
+
+        return daoAuthenticationProvider;
+
+    }
+
+    //1. If use user from database
+
+    protected void configure (AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(daoAuthenticationProvider());
+    }
+
+
+
+
 
     //2. Authorise request
     @Override
