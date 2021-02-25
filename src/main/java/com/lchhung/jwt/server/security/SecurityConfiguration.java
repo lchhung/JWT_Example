@@ -94,7 +94,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 .antMatchers("/api/public/users").hasRole("ADMIN")
                 .and()
+                //.formLogin()
                 .httpBasic();
+                //.loginPage("/login").permitAll();
+                //.httpBasic();
     }
 
     //3. Need to provide a password encoder to hash password to be stored in plain text
